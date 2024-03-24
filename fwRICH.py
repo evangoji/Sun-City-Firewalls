@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from ttkthemes import ThemedTk
-
-
+import subprocess
+import os
 
 class NextGenFirewallGUI:
     def __init__(self,root):
@@ -10,6 +10,10 @@ class NextGenFirewallGUI:
         self.root.title("Sun City Firewalls LLC")
         self.root.set_theme("breeze")
         tabControl = ttk.Notebook(self.root)
+
+        style = ttk.Style()
+        style.configure("TNotebook.Tab", foreground='#008996')
+        tabControl.pack(expand=1, fill="both")
 
         self.tabs = {
             'Firewall': ttk.Frame(tabControl),
@@ -22,9 +26,7 @@ class NextGenFirewallGUI:
         for name, tab in self.tabs.items():
             tabControl.add(tab, text=name)
 
-        style = ttk.Style()
-        style.configure("TNotebook.Tab", foreground='#008996')
-        tabControl.pack(expand=1, fill="both")
+        
 
         #self.setupFirewall()
         #self.setupVPN()
@@ -38,14 +40,18 @@ class NextGenFirewallGUI:
         self.firewallRules = []
 
         self.root.mainloop()
-
         app_frame = ttk.Frame(self.root, width=100, height = 300, borderwidth = 5, relief = tk.RIDGE)
         app_frame.pack_propagate(False)
         app_frame.pack(side = 'left')
+        button1 = ttk.Button(app_frame, text="Button 1")
+        button1.pack(pady=10)
+
+        button2 = ttk.Button(app_frame, text="Button 2")
+        button2.pack(pady=10)
 
     def setupAITuning(self):
-        tab = self.tabs['AI Auto Tuning']
-        ttk.Label(tab, text="AI Auto Tuning", font=("Helvetica", 18, "bold"), foreground="#FF0000").pack(pady=20)
+        tab = self.tabs['AI Tuning']
+        ttk.Label(tab, text="AI Auto Tuning", font=("Helvetica", 18, "bold"), foreground="#008996").pack(pady=20)
 
         snort_frame = ttk.Frame(tab)
         snort_frame.pack(pady=10)
@@ -75,6 +81,32 @@ class NextGenFirewallGUI:
         tcpdump_switch = ttk.Checkbutton(tcpdump_frame, text="Enable Tcpdump", command=self.run_tcpdump)
         tcpdump_switch.pack(side=tk.LEFT)
         ttk.Button(tcpdump_frame, text="View Capture", command=lambda: self.view_logs("Tcpdump Capture")).pack(side=tk.LEFT)
+
+    def run_snort(self):
+        try:
+            subprocess.run(["Sudo", "snort", "-q", "-c", "/etc/snort/snort.conf"])
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Error running Snort", f"Command {e.cmd} returned non-zero exit status {e.returncode}")
+
+    def run_nmap(self):
+        try:
+            subprocess.run(['nmap', '-sP', '192.168.1.0/24'], check=True)
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Error running Nmap", f"Command {e.cmd} returned non-zero exit status {e.returncode}")
+
+    # New run_wireshark method
+    def run_wireshark(self):
+        try:
+            wireshark_path = r'C:\Program Files\Wireshark\Wireshark.exe'
+            subprocess.run([wireshark_path, '-i', 'Wi'], check=True)
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Error running Wireshark", f"Command {e.cmd} returned non-zero exit status {e.returncode}")
+
+    def run_tcpdump(self):
+        try:
+            subprocess.run(['tcpdump', '-i', 'eth0', '-n', '-s', '0', '-w', 'capture.pcap'], check=True)
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Error running Tcpdump", f"Command {e.cmd} returned non-zero exit status {e.returncode}")
 
     #def setupSettings(self):
 def main():
